@@ -1,5 +1,5 @@
-Load "guilib.ring"
-Load "libcurl.ring"
+load "guilib.ring"
+load "libcurl.ring"
 
 /*
  +---------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ myCrumb  = "abcdefghijklmnopqrstuvwxyz"
 
     Scale      = 1              ### Multiplier for Scaling Prices to Chart
     ScaleHi    = 1              ### Scale as per maxHighPrie
-    sizeOfData = 1              ### Time periods retreived
+    sizeOfData = 1              ### Time periods retrieved
 
     maxHighPrice     = 1
     minLowPrice      = 1
@@ -91,12 +91,12 @@ myCrumb  = "abcdefghijklmnopqrstuvwxyz"
 
 ###-------------------------------
 ### Window Size
-    WinLeft   = 80                  ### 80    Window position on screen
-    WinTop    = 80                  ### 80    Window position on screen
-    WinWidth  = 1200                ### 1000  Window Size - Horizontal-X WinWidth
-    WinHeight = 750                 ### 750   Window Size - Vertical-Y WinHeight
-    WinRight  = WinLeft + WinWidth  ### 1080
-    WinBottom = WinTop  + WinHeight ### 830
+    WinLeft   = 80                  ### Window position on screen
+    WinTop    = 80                  ### Window position on screen
+    WinWidth  = 800                 ### Window Size - Horizontal-X WinWidth
+    WinHeight = 600                 ### Window Size - Vertical-Y WinHeight
+    WinRight  = WinLeft + WinWidth  
+    WinBottom = WinTop  + WinHeight 
 
 ###----------------------------
 ### Label1 Box Size
@@ -143,14 +143,19 @@ myCrumb  = "abcdefghijklmnopqrstuvwxyz"
 ###
 ###==================================
 
-New qapp {
-        win1 = new qwidget() {
+new QApp {
 
-                ### Position and Size on Screen
+		styleFusion()
+
+        win1 = new QWidget() {
+
+                ### Size on Screen
                 setwindowtitle("GetQuotesHistory-DrawChart using QPainter")
-                setgeometry( WinLeft, WinTop, WinWidth, WinHeight)
-
-                win1{ setwindowtitle("Initial Window Position: " +" L " + WinLeft +" T " + WinTop +" Width" + width() +" Height " +  height() ) }
+                resize(WinWidth, WinHeight)
+				setMinimumHeight(500)
+				setMinimumWidth(600)
+				setWinIcon(Self,"appicon.png")
+                setwindowtitle("Initial Window Position: " +" L " + WinLeft +" T " + WinTop +" Width" + width() +" Height " +  height() ) 
 
                 ###------------------------------------------
                 ### ReSizeEvent ... Call WhereAreWe function
@@ -244,6 +249,8 @@ New qapp {
                         setGeometry(BoxLeft +380+EXTRAWIDTH*2, BoxTop -BoxTop, 80, 20)
                         alist = ["Line","Bar","Mountain","Actual","Log","HeikenAshi"]
                         for x in aList additem(x,0) next
+						setCurrentIndex(2)
+						setCurrentIndexChangedEvent("draw()")
                 }
 
                 ###----------------------------------------------------------
@@ -253,6 +260,7 @@ New qapp {
                         setGeometry(BoxLeft +440+EXTRAWIDTH*2.5, BoxTop -BoxTop, 80, 20)
                         alistTime = ["Weekly", "Daily", "Monthly"]
                         for x in aListTime additem(x,0) next
+						setCurrentIndexChangedEvent("draw()")
                 }
 
                 ###---------------------------
@@ -427,6 +435,7 @@ New qapp {
 
 
             show()
+			NextSymbol()
         }
         exec()
 }
@@ -437,12 +446,12 @@ New qapp {
 
 
 Func CheckBoxMAvg
-    See "StateChange: Check MAvg " + CheckMAvg.isChecked()  +nl   ### 0 - Uncheked  1 - Checked
+    See "StateChange: Check MAvg " + CheckMAvg.isChecked()  +nl   ### 0 - Unchecked  1 - Checked
 return
 
 
 Func CheckDividend
-    See "StateChange: Check Dividend " + CheckDividend.isChecked()  +nl   ### 0 - Uncheked  1 - Checked
+    See "StateChange: Check Dividend " + CheckDividend.isChecked()  +nl   ### 0 - Unchecked  1 - Checked
 return
 
 
@@ -489,7 +498,7 @@ Func WhereAreWe()
 return
 
 ###============================================================
-### FUNCTION DARW -  After Stock Symbol selected handle it
+### FUNCTION DRAW -  After Stock Symbol selected handle it
 ###
 ###============================================================
 
@@ -497,7 +506,7 @@ Func Draw
 
 
     ###-----------------------------
-    ### FETCH DATA for this sysmbol
+    ### FETCH DATA for this symbol
     ### CLEAR arrayClose
     ###-----------------------------
 
@@ -549,7 +558,7 @@ Func Draw
             ###------------------------------------------------------------------------
             ### Note AAPL split 7 to 1 -- maxHighPrice 129.88 maxActualHiPrice 705.07
 
-            Scale    = WinBaseY / maxHighPrice           ### Mulpiplier to Scales Prices to Chart
+            Scale    = WinBaseY / maxHighPrice           ### Multiplier to Scales Prices to Chart
             ScaleHi  = WinBaseY / maxActualHiPrice
 
             # See "WinBaseY " +WinBaseY +" maxHighPrice " + maxHighPrice +" maxActualHiPrice " + maxActualHiPrice +" Scale " + Scale +" ScaleHi " +ScaleHi +nl
@@ -643,7 +652,7 @@ Func Draw
                     drawline( x, 10, x, WinBaseY)                               ### DRAW LINE
                     # See " Count " + count + " Year " + Year + " X " +x + " DaysAgo " + DaysAgo +nl
 
-                    ### WEEKLY MONTHY Dates
+                    ### WEEKLY MONTHLY Dates
 
                     if ((chartPeriod = "Weekly") or (chartPeriod = "Monthly"))
                         drawText( x, WinBaseY +20, (string(Year)) )             ### YEAR DATE
@@ -904,7 +913,7 @@ Func Draw
 
             ###------------------------------------------------------------------------------
             ### DRAW MvgAVG CHART - Use Blue Pen
-            ### Check MAvg " + CheckMAvg.isChecked()  +nl   ### 0 - Uncheked  1 - Checked
+            ### Check MAvg " + CheckMAvg.isChecked()  +nl   ### 0 - Unchecked  1 - Checked
             ###------------------------------------------------------------------------------
 
             setpen(penBlue)
@@ -936,7 +945,7 @@ Func Draw
             ### Magnify by 5X  -
             ### -- $1 quarter =>  $5  ==> Mentally: Double / 10 => Quarterly estimate
             ### Mountain Style - Use Blue Pen
-            ### CheckDividend.isChecked() = 1   ### 0 - Uncheked  1 - Checke
+            ### CheckDividend.isChecked() = 1   ### 0 - Unchecked  1 - Checked
             ###----------------------------------------------------------------------
                         ###
                         ###    1       2
@@ -991,8 +1000,8 @@ Func Draw
 
             setpen(penGreen)
 
-            # drawline(        1,            1, BoxWidth,            1 )             ### WinTop line horizonal
-            drawline(        1,            1,        1, BoxHeight    )             ### WinLeft Line vetical
+            # drawline(        1,            1, BoxWidth,            1 )             ### WinTop line horizontal
+            drawline(        1,            1,        1, BoxHeight    )             ### WinLeft Line vertical
             drawline(        1, BoxHeight -1, BoxWidth, BoxHeight -1 )             ### Bottom Line horizontal
             # drawline( BoxWidth,            1, BoxWidth, BoxHeight    )             ### WinRight Line vertical
 
@@ -1468,7 +1477,7 @@ return
 Func ExtractDividendData  dStr
 
     ###------------------------------------------------------------------------------
-    ### READ Dividend dataa nd extract Date and Dividends into List
+    ### READ Dividend data and extract Date and Dividends into List
     ###    1       2
     ### Date,      Dividends
     ### 2016-07-12,0.310000
